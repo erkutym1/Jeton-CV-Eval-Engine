@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluation Result - {{ filename }}</title>
+    <style>
+        body { background-color: #121212; color: #eee; font-family: sans-serif; margin: 0; padding: 20px 1%; }
+        .container { display: flex; gap: 20px; width: 100%; flex-wrap: wrap; }
+        .right-panel { flex: 1; min-width: 350px; }
+        .left-panel { flex: 2; min-width: 400px; }
+        .card { background: rgb(236, 236, 236); color: #1e1e1e; box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset; border-radius: 10px; padding: 25px; margin-bottom: 20px; }
+        .card pre { white-space: pre-wrap; word-wrap: break-word; font-size: 14px; font-family: monospace; max-height: 80vh; overflow-y: auto; }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .back-button { background-color: #666; padding: 10px 20px; border-radius: 10px; color: #eee; text-decoration: none; transition: all 0.3s; }
+        .back-button:hover { background-color: #888; }
+        .score-circle { width: 120px; height: 120px; border-radius: 50%; background: #333; color: #4CAF50; display: flex; justify-content: center; align-items: center; font-size: 48px; font-weight: bold; margin: 0 auto 20px auto; border: 5px solid #4CAF50; }
+        .score-details p { display: flex; justify-content: space-between; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 10px; }
+        .skills-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+        .skills-list li { background-color: #666; color: #fff; padding: 5px 10px; border-radius: 15px; font-size: 14px; }
+        .error { color: #ff6b6b; background-color: #3e2727; padding: 15px; border-radius: 5px; border: 1px solid #ff6b6b; }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <h2>Evaluation Result: {{ filename }}</h2>
+        <a href="{{ url_for('cv_files') }}" class="back-button">Back to File List</a>
+    </div>
+
+    {% if evaluation_results.error %}
+    <div class="card">
+        <h3>An Error Occurred</h3>
+        <p class="error">{{ evaluation_results.error }}</p>
+    </div>
+    {% else %}
+    <div class="container">
+        <!-- Right Panel: Evaluation Results -->
+        <div class="right-panel">
+            <div class="card">
+                <div class="score-circle">{{ evaluation_results.scores.total }}</div>
+                <h3>Overall Score</h3>
+                <div class="score-details">
+                    <p>Skills: <span>{{ evaluation_results.scores.skills }} / 50</span></p>
+                    <p>Experience: <span>{{ evaluation_results.scores.experience }} / 30</span></p>
+                    <p>Education: <span>{{ evaluation_results.scores.education }} / 20</span></p>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Summary</h3>
+                <p>{{ evaluation_results.summary }}</p>
+            </div>
+            <div class="card">
+                <h3>Skills Found</h3>
+                <ul class="skills-list">
+                    {% for skill in evaluation_results.skills_found %}
+                    <li>{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+             <div class="card">
+                <h3>Details</h3>
+                <p><strong>Experience:</strong> {{ evaluation_results.experience_years }} years</p>
+                <p><strong>Education:</strong> {{ evaluation_results.education_level }}</p>
+            </div>
+        </div>
+        <!-- Left Panel: Raw CV Text -->
+        <div class="left-panel card">
+            <h3>Raw CV Text</h3>
+            <pre>{{ extracted_text }}</pre>
+        </div>
+    </div>
+    {% endif %}
+</body>
+</html>

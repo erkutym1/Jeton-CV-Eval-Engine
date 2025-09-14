@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uploaded CV Files</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="background-color: #121212; color: #eee; font-family: sans-serif; padding: 40px;">
+
+    <div style="max-width: 800px; margin: auto; background-color: #1e1e1e; padding: 30px; border-radius: 10px;">
+        <h1 style="color: #4CAF50;">File Uploaded Successfully!</h1>
+        <p>Select one of the CVs below to view its content and evaluation.</p>
+
+        <hr style="border-color: #333; margin: 20px 0;">
+
+        <h2>Registered CVs in the System:</h2>
+
+        {% if not files %}
+            <p>No CVs have been uploaded yet.</p>
+        {% else %}
+            <ul style="list-style: none; padding: 0;">
+                {% for file in files %}
+                    <li style="background-color: #333; padding: 10px; border-radius: 5px; margin-bottom: 5px;">
+                        <a href="{{ url_for('evaluate_cv', filename=file) }}" style="text-decoration: none; color: #eee; display: block;">
+                            {{ file }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <br>
+        <a href="{{ url_for('index') }}" class="browse-button" style="text-decoration: none; display: inline-block;">Upload New CV</a>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Python sanal ortam klasörünü dışarıda bırak
+venv/
+.venv/
+
+# Python cache dosyalarını dışarıda bırak
+__pycache__/
+*.pyc
+
+# IDE ve editör ayar dosyalarını dışarıda bırak
+.idea/
+.vscode/
+
+# Git klasörünü dışarıda bırak
+.git/
