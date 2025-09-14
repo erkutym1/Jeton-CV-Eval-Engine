@@ -24,7 +24,7 @@ This approach provides a secure, cost-free, and fully offline-capable AI solutio
 
 - **Backend:** Flask
 - **AI / LLM:** Llama-cpp-python
-- **Model:** Meta-Llama-3-8B-Instruct (in Q4_0.gguf format)
+- **Model:** Meta-Llama-3-8B-Instruct (in Q4_0.gguf format) / Link: https://drive.google.com/drive/folders/1Y-sRVVIyISlE1s3OJHRM42uasARVd-PZ?usp=drive_link
 - **PDF Processing:** pdfplumber
 - **Frontend:** HTML, CSS
 - **Containerization:** Docker
