@@ -1,35 +1,33 @@
 import os
 from werkzeug.utils import secure_filename
 
-# Yüklenen dosyaların kaydedileceği klasörün yolu
-# Bu yol, app.py'nin bulunduğu ana dizine göre belirlenir.
+# The path to the folder where uploaded files will be saved.
+# This path is relative to the main directory where app.py is located.
 UPLOAD_FOLDER = 'inputs'
-
 
 def save_pdf(file):
     """
-    Yüklenen PDF dosyasını 'inputs' klasörüne kaydeder.
-    Güvenlik için dosya adını temizler.
+    Saves the uploaded PDF file to the 'inputs' folder.
+    Cleans the filename for security purposes.
     """
     if file and file.filename != '':
-        # Dosya adını güvenlik zafiyetlerine karşı temizle (örn: ../../)
+        # Sanitize the filename to prevent security vulnerabilities (e.g., directory traversal attacks).
         filename = secure_filename(file.filename)
 
-        # 'inputs' klasörünün var olup olmadığını kontrol et, yoksa oluştur
+        # Check if the 'inputs' folder exists; if not, create it.
         if not os.path.exists(UPLOAD_FOLDER):
             os.makedirs(UPLOAD_FOLDER)
 
-        # Dosyayı kaydetmek için tam yolu oluştur
+        # Create the full path to save the file.
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         file.save(filepath)
-        print(f"Dosya başarıyla kaydedildi: {filepath}")
+        print(f"File saved successfully: {filepath}")
         return filename
     return None
 
-
 def list_uploaded_files():
     """
-    'inputs' klasöründeki tüm dosyaları listeler.
+    Lists all files currently in the 'inputs' folder.
     """
     if not os.path.exists(UPLOAD_FOLDER):
         return []

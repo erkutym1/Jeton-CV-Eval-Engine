@@ -1,0 +1,53 @@
+<!-- templates/dream.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Team Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="background-color: #121212; color: #eee; font-family: sans-serif; padding: 40px;">
+
+    <div style="max-width: 900px; margin: auto; background-color: #1e1e1e; padding: 30px; border-radius: 10px;">
+        <h2>Dream Team Results for:</h2>
+        <p style="background-color: #333; padding: 15px; border-radius: 5px; font-style: italic;">"{{ query }}"</p>
+
+        <hr style="border-color: #333; margin: 30px 0;">
+
+        {% if not candidates %}
+            <p>No suitable candidates found or no CVs available in the system.</p>
+        {% else %}
+            <h3>Top {{ candidates|length }} Candidates (Ranked by AI):</h3>
+            {% for candidate in candidates %}
+                <div class="card" style="background: #2b2b2b; color: #eee; padding: 20px; margin-bottom: 20px; border-left: 5px solid #4CAF50;">
+
+                    <!-- Candidate Name and File Link -->
+                    <h4 style="margin-top: 0;">
+                        <a href="{{ url_for('evaluate_cv', filename=candidate.filename) }}" style="text-decoration: none; color: #4CAF50;">
+                            {{ candidate.evaluation.candidate_name or 'Name Not Found' }}
+                        </a>
+                        <span style="font-size: 0.8em; color: #999;"> ({{ candidate.filename }})</span>
+                    </h4>
+
+                    <!-- Contact Info -->
+                    <p><strong>Contact:</strong> {{ candidate.evaluation.contact_email or 'N/A' }}</p>
+
+                    <!-- Scores -->
+                    <p>
+                        <strong>Match Score for this Role:</strong>
+                        <span style="font-weight: bold; color: #4CAF50;">{{ candidate.match_score }} / 100</span>
+                    </p>
+
+                    <!-- Reasoning -->
+                    <p><strong>Reasoning:</strong> {{ candidate.reasoning }}</p>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <br>
+        <a href="{{ url_for('cv_files') }}" class="browse-button" style="text-decoration: none; display: inline-block;">Back to File List</a>
+    </div>
+</body>
+</html>

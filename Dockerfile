@@ -1,31 +1,35 @@
 # Dockerfile
 
 # Step 1: Use an official Python runtime as a parent image.
-# We'll use a slim version of Python 3.9, which helps keep the final image size small.
 FROM python:3.9-slim
 
 # Step 2: Set the working directory inside the container.
-# All subsequent commands will be run from the /app directory.
 WORKDIR /app
 
-# Step 3: Copy the dependencies file first.
-# By copying only requirements.txt initially, we leverage Docker's layer caching.
-# This speeds up future builds if the dependencies haven't changed.
+# Step 3: Install system dependencies required for building Python packages.
+# 'build-essential' provides C/C++ compilers (like gcc) and 'cmake' is a build tool.
+# Both are CRITICAL for compiling llama-cpp-python.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake
+
+# Step 4: Copy the dependencies file first to leverage Docker caching.
 COPY requirements.txt .
 
-# Step 4: Install the dependencies.
-# Install all the Python libraries listed in requirements.txt.
-RUN pip install --no-cache-dir -r requirements.txt
+# Step 5: Upgrade pip and install Python dependencies.
+# We no longer need the timeout flag as the network issue is solved.
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Step 5: Copy the rest of the project files.
-# Copy all the source code from the current local directory into the container's /app directory.
+# Step 6: Copy the model file INTO the container image.
+# WARNING: This will make your Docker image VERY LARGE (several GBs)!
+COPY ./model /app/model
+
+# Step 7: Copy the rest of the project files.
 COPY . .
 
-# Step 6: Expose the port that the app runs on.
-# This informs Docker that the container listens on port 5000 at runtime.
+# Step 8: Expose the port that Gunicorn will run on.
 EXPOSE 5000
 
-# Step 7: Define the command to run the application.
-# This command starts the Flask development server.
-# The "--host=0.0.0.0" argument is crucial for making the server accessible from outside the container.
-CMD ["flask", "run", "--host=0.0.0.0"]
+# Step 9: Use Gunicorn as the production-ready WSGI server.
+CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:5000", "app:app"]

@@ -1,38 +1,132 @@
+<!-- templates/cv_files.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uploaded CV Files</title>
+    <!-- Link to the main stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Link to the new loader stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='loader.css') }}">
 </head>
 <body style="background-color: #121212; color: #eee; font-family: sans-serif; padding: 40px;">
 
     <div style="max-width: 800px; margin: auto; background-color: #1e1e1e; padding: 30px; border-radius: 10px;">
-        <h1 style="color: #4CAF50;">File Uploaded Successfully!</h1>
-        <p>Select one of the CVs below to view its content and evaluation.</p>
-
-        <hr style="border-color: #333; margin: 20px 0;">
+        <!-- Area to display flashed messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                    <li style="color: #4CAF50;">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
 
         <h2>Registered CVs in the System:</h2>
 
-        {% if not files %}
-            <p>No CVs have been uploaded yet.</p>
-        {% else %}
-            <ul style="list-style: none; padding: 0;">
-                {% for file in files %}
-                    <li style="background-color: #333; padding: 10px; border-radius: 5px; margin-bottom: 5px;">
-                        <a href="{{ url_for('evaluate_cv', filename=file) }}" style="text-decoration: none; color: #eee; display: block;">
-                            {{ file }}
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+        <!-- Bulk Deletion Form -->
+        <form action="{{ url_for('delete_files') }}" method="post">
+            {% if not files %}
+                <p>No CVs have been uploaded yet.</p>
+            {% else %}
+                <ul style="list-style: none; padding: 0;">
+                    {% for file in files %}
+                        <li style="background-color: #333; padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <input type="checkbox" name="files_to_delete" value="{{ file }}" id="cb-{{ loop.index }}" style="margin-right: 15px;">
+                                <a href="{{ url_for('evaluate_cv', filename=file) }}" style="text-decoration: none; color: #eee;">
+                                    {{ file }}
+                                </a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <button type="submit" class="browse-button" style="background-color: #c0392b;">Delete Selected</button>
+            {% endif %}
+        </form>
+
+        <hr style="border-color: #333; margin: 30px 0;">
+
+        <!-- Dream Team Form -->
+        <h2>Find Your Dream Team</h2>
+        <button id="dreamTeamBtn" class="browse-button">Start Building</button>
+        <div id="dreamTeamFormContainer" style="display: none; margin-top: 20px; background-color: #333; padding: 20px; border-radius: 10px;">
+            <!-- This form will be submitted by the JavaScript -->
+            <form id="findTeamForm" action="{{ url_for('dream_team') }}" method="post">
+                <div style="margin-bottom: 15px;">
+                    <input type="radio" id="type_project" name="type" value="project" checked>
+                    <label for="type_project">Project</label>
+                    <input type="radio" id="type_position" name="type" value="position" style="margin-left: 20px;">
+                    <label for="type_position">Position</label>
+                </div>
+                <textarea name="description" id="description" rows="4" style="width: 100%; background-color: #555; color: #eee; border: 1px solid #666; border-radius: 5px; padding: 10px;" placeholder="Input project name or position description..."></textarea>
+
+                <!-- The wrapper for the button and the loader -->
+                <div style="display: flex; align-items: center; margin-top: 15px;">
+                    <button type="submit" id="findTeamSubmitBtn" class="browse-button">Find Team</button>
+                    <!-- THE LOADER HTML (initially hidden) -->
+                    <div id="loaderContainer" class="loader" style="display: none; transform: scale(0.5); margin: -50px 0 0 -50px;">
+                      <div>
+                        <ul>
+                          <li><svg fill="currentColor" viewBox="0 0 90 120"><path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"></path></svg></li>
+                          <li><svg fill="currentColor" viewBox="0 0 90 120"><path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"></path></svg></li>
+                          <li><svg fill="currentColor" viewBox="0 0 90 120"><path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"></path></svg></li>
+                          <li><svg fill="currentColor" viewBox="0 0 90 120"><path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"></path></svg></li>
+                          <li><svg fill="currentColor" viewBox="0 0 90 120"><path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"></path></svg></li>
+                          <li><svg fill="currentColor" viewBox="0 0 90 120"><path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"></path></svg></li>
+                        </ul>
+                      </div><span>Loading</span>
+                    </div>
+                </div>
+            </form>
+        </div>
 
         <br>
-        <a href="{{ url_for('index') }}" class="browse-button" style="text-decoration: none; display: inline-block;">Upload New CV</a>
+        <a href="{{ url_for('index') }}" class="browse-button" style="text-decoration: none; display: inline-block; margin-top: 20px;">Upload New CV</a>
     </div>
 
+    <script>
+        // Get references to the DOM elements
+        const dreamTeamBtn = document.getElementById('dreamTeamBtn');
+        const dreamTeamFormContainer = document.getElementById('dreamTeamFormContainer');
+        const descriptionInput = document.getElementById('description');
+        const radioButtons = document.querySelectorAll('input[name="type"]');
+
+        // --- NEW --- Get references for the loader logic
+        const findTeamForm = document.getElementById('findTeamForm');
+        const findTeamSubmitBtn = document.getElementById('findTeamSubmitBtn');
+        const loaderContainer = document.getElementById('loaderContainer');
+
+        // Show the form and hide the 'Start Building' button when clicked
+        dreamTeamBtn.addEventListener('click', () => {
+            dreamTeamFormContainer.style.display = 'block';
+            dreamTeamBtn.style.display = 'none';
+        });
+
+        // Change the placeholder text based on the selected radio button
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', (event) => {
+                if(event.target.value === 'project') {
+                    descriptionInput.placeholder = 'Input project name or description...';
+                } else {
+                    descriptionInput.placeholder = 'Input position name or description...';
+                }
+            });
+        });
+
+        // --- NEW --- Add an event listener to the form submission
+        findTeamForm.addEventListener('submit', () => {
+            // Check if the description is not empty
+            if (descriptionInput.value.trim() !== '') {
+                // Hide the submit button
+                findTeamSubmitBtn.style.display = 'none';
+                // Show the loader
+                loaderContainer.style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>
