@@ -149,6 +149,4 @@ Ensure the API key is set and valid.
 3. Commit changes (`git commit -m 'Add your feature'`).
 4. Push and open a PR.
 
-## License
-MIT License. See `LICENSE` for details.
 
