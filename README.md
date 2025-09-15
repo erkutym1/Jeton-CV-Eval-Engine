@@ -1,127 +1,153 @@
-# CV Evaluation Engine (with Local Llama 3)
 
-This is a web application designed to evaluate curricula vitae (CVs) of data professionals. To address concerns over **API rate limits, potential costs, and data privacy**, the evaluation process is handled entirely by a locally running **Meta-Llama-3-8B-Instruct** model.
 
-This approach provides a secure, cost-free, and fully offline-capable AI solution that does not share sensitive personal information from CVs with any third-party services.
+# CV Evaluation Engine
 
-## ✨ Features
+The CV Evaluation Engine is a Flask-based web application designed to automate the analysis and evaluation of CVs (resumes) in PDF format. It utilizes the Gemini API for AI-powered text analysis to extract key candidate information and assess suitability based on skills, experience, and education. The application also features a "Dream Team" functionality to match candidates to job descriptions. It is containerized with Docker for easy deployment.
 
-- **PDF Upload:** Easily upload CVs through a web interface.
-- **Text Extraction:** Automatically extracts text content from uploaded PDFs.
-- **Local AI Evaluation:** Smart analysis and scoring using a local `Llama 3 8B` GGUF model.
-- **Data Privacy & Security:** Personal information from CVs is never sent to external services; all processing remains on your local machine.
-- **API-Independent:** No need to manage API keys, monthly fees, or rate limits.
-- **Structured Output:** The model extracts the following information from the CV in JSON format:
-  - Skills Found (`skills_found`)
-  - Total Years of Experience (`experience_years`)
-  - Highest Education Level (`education_level`)
-  - Professional Summary (`summary`)
-  - Detailed Scoring (`scores`)
-- **Web Interface:** A simple and user-friendly interface to display the evaluation results and the raw text.
-- **Docker Support:** Docker configuration to easily run the project in an isolated environment.
+## Table of Contents
+- [Features](#features)
+- [Architecture](#architecture)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [API Integration](#api-integration)
+- [Docker Deployment](#docker-deployment)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
-## 🛠️ Technology Stack
+## Features
+- **PDF Upload and Processing**: Upload multiple PDF CVs, securely stored and processed to extract text.
+- **AI-Powered CV Evaluation**: Extracts candidate details (name, email, skills, experience, education) and scores them:
+  - Skills: Up to 50 points based on data skill relevance.
+  - Experience: Up to 30 points based on years (e.g., 0-2 years: 5-10, 3-5 years: 15-20, 6+ years: 25-30).
+  - Education: Up to 20 points based on degree (e.g., Bachelor's: 10, Master's: 15, PhD: 20).
+- **Dream Team Feature**: Matches CVs to job descriptions with a 0-100 match score and reasoning.
+- **File Management**: Lists uploaded CVs, supports bulk deletion, and displays raw text with evaluations.
+- **Responsive Web Interface**: Built with Flask and HTML templates.
+- **Docker Support**: Containerized for consistent deployment.
 
-- **Backend:** Flask
-- **AI / LLM:** Llama-cpp-python
-- **Model:** Meta-Llama-3-8B-Instruct (in Q4_0.gguf format) / Link: https://drive.google.com/drive/folders/1Y-sRVVIyISlE1s3OJHRM42uasARVd-PZ?usp=drive_link
-- **PDF Processing:** pdfplumber
-- **Frontend:** HTML, CSS
-- **Containerization:** Docker
+## Architecture
+- **Flask Backend**: Manages requests, file handling, and template rendering.
+- **Gemini API**: Powers CV evaluation and job matching.
+- **PDF Processing**: Uses `pdfplumber` for text extraction.
+- **File Storage**: Stores PDFs in the `inputs` folder.
+- **Frontend**: HTML templates with basic CSS styling.
 
-## 📂 Project Structure
+Key files:
+- `app.py`: Main Flask application.
+- `modules/`: Contains logic for CV evaluation, job matching, and PDF handling.
+- `templates/`: HTML files for the user interface.
 
+## Prerequisites
+- **Python 3.9+**
+- **Docker**
+- **Gemini API Key** (from Google Cloud)
+- **Dependencies**: Listed in `requirements.txt` (Flask, pdfplumber, google-generativeai).
+
+## Installation
+1. **Clone the Repository**:
+   ```bash
+   git clone <repository-url>
+   cd Jeton-CV-Eval-Engine
+   ```
+
+2. **Set Up Virtual Environment** (optional):
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install Dependencies**:
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+
+4. **Set Gemini API Key**:
+   - Create a `.env` file or set:
+     ```bash
+     export GEMINI_API_KEY='your-api-key-here'
+     ```
+
+5. **Run Locally**:
+   ```bash
+   python app.py
+   ```
+   Access at `http://localhost:5000`.
+
+## Usage
+1. **Upload CVs**:
+   - Go to `/`, drag and drop or browse for PDF CVs.
+   - Only PDFs are accepted.
+
+2. **View CVs**:
+   - Visit `/cv_files` to list and delete CVs or evaluate one.
+
+3. **Evaluate CV**:
+   - Go to `/cv_eval/<filename>` for detailed results.
+
+4. **Dream Team**:
+   - On `/cv_files`, enter a job description and submit for ranked candidates.
+
+## Project Structure
 ```
 Jeton-CV-Eval-Engine/
-├── model/
-│   └── Meta-Llama-3-8B-Instruct.Q4_0.gguf  <-- Place the model file here
+├── .cadence
+├── .venv
+├── inputs/              # Stores uploaded PDFs
 ├── modules/
-│   ├── __init__.py
-│   ├── cv_evaluator.py     # Local Llama 3 evaluation logic
-│   ├── pdf_to_text.py      # PDF to text extraction
-│   └── pdf_upload.py       # File saving logic
+│   ├── cv_evaluation_gemini.py  # CV analysis
+│   ├── dream_team_evaluator.py  # Job matching
+│   ├── pdf_to_text.py          # PDF text extraction
+│   ├── pdf_upload.py           # File upload handling
 ├── static/
-│   └── ...
+│   ├── loader.css
+│   ├── style.css
 ├── templates/
-│   └── ...
-├── app.py                  # Main Flask application
-├── Dockerfile              # Instructions for building the Docker image
-├── requirements.txt        # Python dependencies
-└── README.md
+│   ├── cv_eval.html
+│   ├── cv_files.html
+│   ├── dream.html
+│   ├── index.html
+├── test/
+├── .dockerignore
+├── app.py               # Main application
+├── Dockerfile
+├── README.md
+├── requirements.txt
 ```
 
-## 🚀 Setup and Installation
+## API Integration
+Uses Gemini API (`gemini-2.5-pro`) for:
+- CV evaluation (candidate details and scores).
+- Job matching (match score and reasoning).
+Ensure the API key is set and valid.
 
-There are two methods to run this project: **Local Setup** (recommended first step) and **Docker Setup**.
+## Docker Deployment
+1. **Build Image**:
+   ```bash
+   docker build -t cv-evaluation-engine .
+   ```
 
-### 1. Local Setup (Recommended)
+2. **Run Container**:
+   ```bash
+   docker run -p 5000:5000 -e GEMINI_API_KEY='your-api-key-here' cv-evaluation-engine
+   ```
+   Access at `http://localhost:5000`.
 
-This method runs the model directly on your machine and offers a faster initial setup.
+## Troubleshooting
+- **API Errors**: Check `GEMINI_API_KEY` and API quotas.
+- **PDF Issues**: Ensure `pdfplumber` is installed and PDFs are valid.
+- **File Upload**: Verify `inputs` folder permissions.
+- **Docker**: Ensure port 5000 is free.
 
-**Step 1: Clone the Repository**
-```bash
-git clone <repository_url>
-cd Jeton-CV-Eval-Engine
-```
+## Contributing
+1. Fork the repo.
+2. Create a feature branch (`git checkout -b feature/your-feature`).
+3. Commit changes (`git commit -m 'Add your feature'`).
+4. Push and open a PR.
 
-**Step 2: Create and Activate a Virtual Environment**
-```bash
-# Windows
-python -m venv venv
-venv\Scripts\activate
+## License
+MIT License. See `LICENSE` for details.
 
-# macOS / Linux
-python3 -m venv venv
-source venv/bin/activate
-```
-
-**Step 3: Install Dependencies**
-**Warning:** The installation of `llama-cpp-python` may require a C++ compiler on your system and might take some time.
-```bash
-pip install -r requirements.txt
-```
-
-**Step 4: Download and Place the Model**
-1.  Create a folder named `model` in the project's root directory.
-2.  Download the `Meta-Llama-3-8B-Instruct.Q4_0.gguf` model from a source like [Hugging Face](https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF).
-3.  Place the downloaded `.gguf` file inside the `model` folder you created.
-
-**Step 5: Run the Application**
-```bash
-python app.py
-```
-
-**Step 6: Access the Interface**
-Open your web browser and navigate to `http://localhost:5000`.
-
-### 2. Docker Setup (Advanced)
-
-This method runs the entire application and its dependencies in an isolated container.
-
-**Prerequisites:**
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) must be installed and running on your computer.
-
-**Step 1: Prepare the Model**
-Follow **Step 4** from the local setup to prepare the `model` folder and the `.gguf` file within it. The model will be copied into the Docker image.
-
-**Step 2: Build the Docker Image**
-**Warning:** This process can be **very slow** as it will compile `llama-cpp-python` and copy the large model file into the image. The resulting image will be **several GBs in size**.
-```bash
-docker build -t cv-evaluation-engine .
-```
-
-**Step 3: Run the Docker Container**
-```bash
-docker run -d -p 5001:5000 --name cv-engine-container cv-evaluation-engine
-```
-- `-p 5001:5000`: Maps port 5001 on your host machine to port 5000 in the container.
-
-**Step 4: Access the Interface**
-Open your web browser and navigate to `http://localhost:5001`.
-
-1.  Open the application in your browser.
-2.  Upload a PDF CV by clicking the "Browse file" button or by using drag-and-drop.
-3.  Press the "Submit" button.
-4.  On the file list page you are redirected to, click on the name of the file you uploaded.
-5.  The evaluation page will open.
-    - **Note:** The first evaluation may take some time as the model needs to be loaded into memory. Subsequent evaluations will be faster.
