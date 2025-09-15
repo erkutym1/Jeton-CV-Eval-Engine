@@ -1,8 +1,8 @@
-
-
 # CV Evaluation Engine
 
 The CV Evaluation Engine is a Flask-based web application designed to automate the analysis and evaluation of CVs (resumes) in PDF, DOC, and DOCX formats. It utilizes the Gemini API for AI-powered text analysis to extract key candidate information and assess suitability based on skills, experience, and education. The application also features a "Dream Team" functionality to match candidates to job descriptions. It is containerized with Docker for easy deployment.
+
+https://github.com/erkutym1/Jeton-CV-Eval-Engine
 
 ## Table of Contents
 - [Features](#features)
@@ -15,7 +15,6 @@ The CV Evaluation Engine is a Flask-based web application designed to automate t
 - [Docker Deployment](#docker-deployment)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Features
 - **PDF, DOC, and DOCX Upload and Processing**: Upload multiple CVs in PDF, DOC, or DOCX formats, securely stored and processed to extract text.
