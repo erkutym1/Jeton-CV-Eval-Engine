@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
-from modules.pdf_upload import save_pdf, list_uploaded_files
+from modules.file_processor import process_and_save_file, list_uploaded_files
 from modules.pdf_to_text import extract_text_from_pdf
 from modules.cv_evaluation_gemini import evaluate_cv_with_gemini
 from modules.dream_team_evaluator import get_match_score_for_role
@@ -16,24 +16,25 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:
-        flash('No file selected!')
-        return redirect(request.url)
     files = request.files.getlist('file')
-    if not files or all(file.filename == '' for file in files):
+    if not files or files[0].filename == '':
         flash('No file selected!')
         return redirect(url_for('index'))
-    valid_files = True
+
+    successful_uploads = 0
     for file in files:
-        if not (file and file.filename.endswith('.pdf')):
-            valid_files = False
-            flash('Please upload PDF files only!')
-            break
-    if valid_files:
-        for file in files:
-            save_pdf(file)
-        return redirect(url_for('cv_files'))
-    return redirect(url_for('index'))
+        # Yeni dosya işleme fonksiyonunu çağır
+        result_filename = process_and_save_file(file)
+        if result_filename:
+            successful_uploads += 1
+        else:
+            # Fonksiyon None döndürürse, dosya ya desteklenmiyor ya da bir hata oluştu
+            flash(f'"{file.filename}" could not be processed. Only PDF, DOC, and DOCX files are supported.')
+
+    if successful_uploads > 0:
+        flash(f'Successfully processed and saved {successful_uploads} file(s) as PDF.')
+
+    return redirect(url_for('cv_files'))
 
 
 @app.route('/cv_files')

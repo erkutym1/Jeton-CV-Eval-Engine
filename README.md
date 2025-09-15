@@ -2,7 +2,7 @@
 
 # CV Evaluation Engine
 
-The CV Evaluation Engine is a Flask-based web application designed to automate the analysis and evaluation of CVs (resumes) in PDF format. It utilizes the Gemini API for AI-powered text analysis to extract key candidate information and assess suitability based on skills, experience, and education. The application also features a "Dream Team" functionality to match candidates to job descriptions. It is containerized with Docker for easy deployment.
+The CV Evaluation Engine is a Flask-based web application designed to automate the analysis and evaluation of CVs (resumes) in PDF, DOC, and DOCX formats. It utilizes the Gemini API for AI-powered text analysis to extract key candidate information and assess suitability based on skills, experience, and education. The application also features a "Dream Team" functionality to match candidates to job descriptions. It is containerized with Docker for easy deployment.
 
 ## Table of Contents
 - [Features](#features)
@@ -18,7 +18,7 @@ The CV Evaluation Engine is a Flask-based web application designed to automate t
 - [License](#license)
 
 ## Features
-- **PDF Upload and Processing**: Upload multiple PDF CVs, securely stored and processed to extract text.
+- **PDF, DOC, and DOCX Upload and Processing**: Upload multiple CVs in PDF, DOC, or DOCX formats, securely stored and processed to extract text.
 - **AI-Powered CV Evaluation**: Extracts candidate details (name, email, skills, experience, education) and scores them:
   - Skills: Up to 50 points based on data skill relevance.
   - Experience: Up to 30 points based on years (e.g., 0-2 years: 5-10, 3-5 years: 15-20, 6+ years: 25-30).
@@ -31,20 +31,21 @@ The CV Evaluation Engine is a Flask-based web application designed to automate t
 ## Architecture
 - **Flask Backend**: Manages requests, file handling, and template rendering.
 - **Gemini API**: Powers CV evaluation and job matching.
-- **PDF Processing**: Uses `pdfplumber` for text extraction.
-- **File Storage**: Stores PDFs in the `inputs` folder.
+- **PDF Processing**: Uses `pdfplumber` for text extraction from PDFs.
+- **DOC/DOCX Processing**: Requires additional libraries (e.g., `python-docx` or `docx2txt`) for text extraction from DOC/DOCX files.
+- **File Storage**: Stores CVs in the `inputs` folder.
 - **Frontend**: HTML templates with basic CSS styling.
 
 Key files:
 - `app.py`: Main Flask application.
-- `modules/`: Contains logic for CV evaluation, job matching, and PDF handling.
+- `modules/`: Contains logic for CV evaluation, job matching, and file handling.
 - `templates/`: HTML files for the user interface.
 
 ## Prerequisites
 - **Python 3.9+**
 - **Docker**
 - **Gemini API Key** (from Google Cloud)
-- **Dependencies**: Listed in `requirements.txt` (Flask, pdfplumber, google-generativeai).
+- **Dependencies**: Listed in `requirements.txt` (Flask, pdfplumber, google-generativeai, python-docx or docx2txt for DOC/DOCX support).
 
 ## Installation
 1. **Clone the Repository**:
@@ -79,8 +80,8 @@ Key files:
 
 ## Usage
 1. **Upload CVs**:
-   - Go to `/`, drag and drop or browse for PDF CVs.
-   - Only PDFs are accepted.
+   - Go to `/`, drag and drop or browse for CVs in PDF, DOC, or DOCX formats.
+   - Only these file types are accepted; others will trigger an error message.
 
 2. **View CVs**:
    - Visit `/cv_files` to list and delete CVs or evaluate one.
@@ -96,7 +97,7 @@ Key files:
 Jeton-CV-Eval-Engine/
 ├── .cadence
 ├── .venv
-├── inputs/              # Stores uploaded PDFs
+├── inputs/              # Stores uploaded PDFs, DOCs, and DOCXs
 ├── modules/
 │   ├── cv_evaluation_gemini.py  # CV analysis
 │   ├── dream_team_evaluator.py  # Job matching
@@ -138,8 +139,8 @@ Ensure the API key is set and valid.
 
 ## Troubleshooting
 - **API Errors**: Check `GEMINI_API_KEY` and API quotas.
-- **PDF Issues**: Ensure `pdfplumber` is installed and PDFs are valid.
-- **File Upload**: Verify `inputs` folder permissions.
+- **File Processing**: Ensure `pdfplumber` (for PDFs) and `python-docx` or `docx2txt` (for DOC/DOCX) are installed; verify file integrity.
+- **File Upload**: Confirm `inputs` folder permissions.
 - **Docker**: Ensure port 5000 is free.
 
 ## Contributing
